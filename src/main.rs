@@ -1,12 +1,18 @@
 use std::env;
 use std::fs::File; // file handling
 use std::io::prelude::*; // useful traits for i/o
+use std::process;
 
 fn main() {
     // in cases where the desired function is nested in more than one module (std::env::args), bring the parent module into scope rather than the function
     let args: Vec<String> = env::args().collect(); // the collect function needs to be annoted as it's not able to infer the kind of collection
 
-    let config = Config::new(&args);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        // unwrap_or_else allows us to define some custom, non-panic! error handling
+        // if the value is an Err value, this method calls the code in the closure
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
 
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
@@ -27,13 +33,14 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
+    fn new(args: &[String]) -> Result<Config, &'static str> {
+        // &'static str is a type of string literal
         if args.len() < 3 {
-            panic!("not enough arguments");
+            return Err("not enough arguments");
         }
         let query = args[1].clone(); // we dont have to manage lifetimes of references by cloning, but the tradeoff is, it takes more tume and memory than storing a reference to string data
         let filename = args[2].clone();
 
-        Config { query, filename }
+        Ok(Config { query, filename })
     }
 }
