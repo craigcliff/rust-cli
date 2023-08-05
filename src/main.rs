@@ -1,4 +1,5 @@
 use std::env;
+use std::error::Error;
 use std::fs::File; // file handling
 use std::io::prelude::*; // useful traits for i/o
 use std::process;
@@ -20,14 +21,17 @@ fn main() {
     run(config);
 }
 
-fn run(config: Config) {
-    let mut f = File::open(config.filename).expect("file not found");
+//  Box<Error> means the function will return a type that implements the Error trait, but we don’t have to specify what particular type the return value will be
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let mut f = File::open(config.filename)?; //  ? will return the error value from the current function for the caller to handle.
 
     let mut contents = String::new();
-    f.read_to_string(&mut contents)
-        .expect("something went wrong reading the file");
+    f.read_to_string(&mut contents)?;
 
     println!("With text:\n{}", contents);
+
+    Ok(()) // Previously returned a unit type so we keep that as a value here
+           // using () like this is the idiomatic way to indicate that we’re calling run for its side effects only; it doesn’t return a value we need.
 }
 
 // helps convey the meaning of of the group of data - helps make code understandable
