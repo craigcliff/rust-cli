@@ -18,7 +18,13 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.filename);
 
-    run(config);
+    // if let is an alternative to unwrap_or_else
+    // we don’t need unwrap_or_else to return the unwrapped value because it would only be ()
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+
+        process::exit(1);
+    }
 }
 
 //  Box<Error> means the function will return a type that implements the Error trait, but we don’t have to specify what particular type the return value will be
