@@ -38,7 +38,15 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 // Because contents is the argument that contains all of our text and we want to return the parts of that text that match,
 // we know contents is the argument that should be connected to the return value using the lifetime syntax.
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    vec![]
+    let mut results = Vec::new();
+    // use lines to iterate through lines of text
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+
+    results
 }
 
 #[cfg(test)]
@@ -50,9 +58,9 @@ mod test {
         let query = "duct";
         let contents = "\
 Rust:
-safe, fast, production.
+safe, fast, productive.
 Pick three.";
 
-        assert_eq!(vec!["safe, fast, productive"], search(query, contents));
+        assert_eq!(vec!["safe, fast, productive."], search(query, contents));
     }
 }
