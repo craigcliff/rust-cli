@@ -32,6 +32,15 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
            // using () like this is the idiomatic way to indicate that we’re calling run for its side effects only; it doesn’t return a value we need.
 }
 
+// The returned vector should contain string slices that reference slices of the argument contents (rather than the argument query). Hence the lifetime parameter
+// In other words, we tell Rust that the data returned by the search function will live as long as the data passed into the search function in the contents argument
+// Rust can’t possibly know which of the two arguments we need, so we need to tell it.
+// Because contents is the argument that contains all of our text and we want to return the parts of that text that match,
+// we know contents is the argument that should be connected to the return value using the lifetime syntax.
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    vec![]
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
