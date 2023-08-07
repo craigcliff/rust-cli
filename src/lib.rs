@@ -28,6 +28,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut contents = String::new();
     f.read_to_string(&mut contents)?;
 
+    for line in search(&config.query, &contents) {
+        println!("{}", line);
+    }
+
     Ok(()) // Previously returned a unit type so we keep that as a value here
            // using () like this is the idiomatic way to indicate that we’re calling run for its side effects only; it doesn’t return a value we need.
 }
