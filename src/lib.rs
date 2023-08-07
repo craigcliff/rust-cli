@@ -28,8 +28,22 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut contents = String::new();
     f.read_to_string(&mut contents)?;
 
-    println!("With text:\n{}", contents);
-
     Ok(()) // Previously returned a unit type so we keep that as a value here
            // using () like this is the idiomatic way to indicate that we’re calling run for its side effects only; it doesn’t return a value we need.
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn one_result() {
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, production.
+Pick three.";
+
+        assert_eq!(vec!["safe, fast, productive"], search(query, contents));
+    }
 }
