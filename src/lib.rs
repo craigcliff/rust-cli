@@ -19,6 +19,7 @@ impl Config {
         let query = args[1].clone(); // we dont have to manage lifetimes of references by cloning, but the tradeoff is, it takes more tume and memory than storing a reference to string data
         let filename = args[2].clone();
 
+        //   We don’t care about the value of the environment variable, just whether it’s set or unset, so we’re checking is_err rather than unwrap, expect
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err(); // Passing an env variable
 
         Ok(Config {
