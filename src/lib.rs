@@ -1,3 +1,4 @@
+use std::env;
 use std::error::Error;
 use std::fs::File; // file handling
 use std::io::prelude::*; // useful traits for i/o
@@ -6,6 +7,7 @@ use std::io::prelude::*; // useful traits for i/o
 pub struct Config {
     pub query: String,
     pub filename: String,
+    pub case_sensitive: bool,
 }
 
 impl Config {
@@ -17,7 +19,13 @@ impl Config {
         let query = args[1].clone(); // we dont have to manage lifetimes of references by cloning, but the tradeoff is, it takes more tume and memory than storing a reference to string data
         let filename = args[2].clone();
 
-        Ok(Config { query, filename })
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err(); // Passing an env variable
+
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive,
+        })
     }
 }
 
@@ -28,7 +36,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut contents = String::new();
     f.read_to_string(&mut contents)?;
 
-    for line in search(&config.query, &contents) {
+    let results = if config.case_sensitive {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    for line in results {
         println!("{}", line);
     }
 
@@ -54,10 +68,11 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 }
 
 fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let query = query.to_lowercase();
+    let query = query.to_lowercase(); // Calling to_lowercase creates new data rather than referencing existing data so query is now a String not a string slice
     let mut results = Vec::new();
 
     for line in contents.lines() {
+        // When we pass query as an argument to the contains method now, we need to add an ampersand because the signature of contains is defined to take a string slice.
         if line.to_lowercase().contains(&query) {
             results.push(line);
         }
