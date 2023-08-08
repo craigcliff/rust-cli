@@ -14,7 +14,7 @@ fn main() {
     let config = Config::new(&args).unwrap_or_else(|err| {
         // unwrap_or_else allows us to define some custom, non-panic! error handling
         // if the value is an Err value, this method calls the code in the closure
-        println!("Problem parsing arguments: {}", err);
+        eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
     });
 
@@ -24,7 +24,7 @@ fn main() {
     // if let is an alternative to unwrap_or_else
     // we don’t need unwrap_or_else to return the unwrapped value because it would only be ()
     if let Err(e) = minigrep::run(config) {
-        println!("Application error: {}", e);
+        eprintln!("Application error: {}", e);
 
         process::exit(1);
     }
