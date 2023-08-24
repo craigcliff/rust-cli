@@ -11,15 +11,35 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
+    /*
+    The standard library documentation for the env::args function shows that the type of the iterator it returns is std::env::Args.
+    We’ve updated the signature of the Config::new function so the parameter args has the type std::env::Args instead of &[String]
+    Because we’re taking ownership of args and we’ll be mutating args by iterating over it,
+    we can add the mut keyword into the specification of the args parameter to make it mutable.
+    */
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
         // &'static str is a type of string literal
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-        let query = args[1].clone(); // we dont have to manage lifetimes of references by cloning, but the tradeoff is, it takes more tume and memory than storing a reference to string data
-        let filename = args[2].clone();
 
-        //   We don’t care about the value of the environment variable, just whether it’s set or unset, so we’re checking is_err rather than unwrap, expect
+        // The first value in the return value here is the name of the program, so we ignore that by calling next
+        args.next();
+
+        /*
+        We call next on the value we want to put in the query field of Config
+        next returns a Some, we use a match to extract the value.
+        If it returns None, it means not enough arguments were given and we return early with an Err value.
+        We do the same thing for the filename value.
+        */
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didnt get a file name"),
+        };
+
+        //  We don’t care about the value of the environment variable, just whether it’s set or unset, so we’re checking is_err rather than unwrap, expect
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err(); // Passing an env variable
 
         Ok(Config {
